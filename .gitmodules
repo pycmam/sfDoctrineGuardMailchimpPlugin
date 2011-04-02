@@ -1,0 +1,3 @@
+[submodule "lib/vendor/mailchimp"]
+	path = lib/vendor/mailchimp
+	url = git@github.com:pycmam/mailchimp-php5.git

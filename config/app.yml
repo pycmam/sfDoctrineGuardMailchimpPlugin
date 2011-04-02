@@ -1,0 +1,7 @@
+#all: 
+#  mailchimp:
+#    api_key: # https://us2.admin.mailchimp.com/account/api/
+#    list: # list name
+#    optin: false
+#    update: true
+#    api_url: http://api.mailchimp.com/1.3/
