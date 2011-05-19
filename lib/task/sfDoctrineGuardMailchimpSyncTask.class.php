@@ -14,6 +14,7 @@ class sfDoctrineGuardMailchimpExportTask extends sfBaseTask
             new sfCommandOption('application', null, sfCommandOption::PARAMETER_REQUIRED, 'The application name', 'frontend'),
             new sfCommandOption('env', null, sfCommandOption::PARAMETER_REQUIRED, 'The environment', 'prod'),
             new sfCommandOption('connection', null, sfCommandOption::PARAMETER_REQUIRED, 'The connection name', 'radius'),
+            new sfCommandOption('verbose', 'v', sfCommandOption::PARAMETER_NONE, 'Output error details'),
         ));
 
         $this->namespace        = 'guard';
@@ -42,12 +43,23 @@ class sfDoctrineGuardMailchimpExportTask extends sfBaseTask
                 $this->logSection('notice', sprintf('Exporting %d subscribers to list %d', count($subscribers), $listId));
 
                 $result = $api->listBatchSubscribe($listId, $subscribers, $optin, $update);
-
                 if ($api->errorCode) {
                     $this->logSection('error', $api->errorMessage);
                 } else {
                     $this->logSection('success', sprintf('Added: %d, Updated: %d, Errors: %d',
                         $result['add_count'], $result['update_count'], $result['error_count']));
+
+                    // http://apidocs.mailchimp.com/1.3/exceptions.field.php
+                    // 212 - List_InvalidUnsubMember
+                    // 213 - List_InvalidBounceMember
+                    // 214 - List_AlreadySubscribed
+                    if ($options['verbose'] && $result['error_count']) {
+                        foreach($result['errors'] as $error) {
+                            if (!in_array($error['code'], array(212, 213, 214))) {
+                                $this->logSection('error', sprintf('[%s] %s: %s', $error['code'], $error['email'], $error['message']));
+                            }
+                        }
+                    }
                 }
 
             } else {
