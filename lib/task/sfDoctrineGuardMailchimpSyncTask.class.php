@@ -35,7 +35,7 @@ class sfDoctrineGuardMailchimpExportTask extends sfBaseTask
 
             if (count($subscribers)) {
 
-                $listId = $this->getListId($api);
+                $listId = sfConfig::get('app_mailchimp_list_id');
                 $update = sfConfig::get('app_mailchimp_update', true);
                 $optin = sfConfig::get('app_mailchimp_optin', false);
 
@@ -54,31 +54,6 @@ class sfDoctrineGuardMailchimpExportTask extends sfBaseTask
                 $this->logSection('notice', 'Nothing to export!');
             }
 
-        } else {
-            $this->logSection('error', $api->errorMessage);
-        }
-    }
-
-
-    /**
-     * Get list id by name
-     *
-     * @param string $name
-     * @return string
-     */
-    protected function getListId($api)
-    {
-        $name = sfConfig::get('app_mailchimp_list');
-        $response = $api->lists(array('name' => $name));
-
-        if (! $api->errorCode) {
-            if ($response['total']) {
-
-                return $response['data'][0]['id'];
-
-            } else {
-                $this->logSection('error', sprintf('List %s not found!', $name));
-            }
         } else {
             $this->logSection('error', $api->errorMessage);
         }
