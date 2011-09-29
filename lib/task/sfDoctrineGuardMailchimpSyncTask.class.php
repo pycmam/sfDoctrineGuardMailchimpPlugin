@@ -29,10 +29,14 @@ class sfDoctrineGuardMailchimpExportTask extends sfBaseTask
 
         if ($api->ping()) {
 
+            $manager = Doctrine_Manager::getInstance();
+            $manager->setAttribute(Doctrine::ATTR_QUOTE_IDENTIFIER, false);
+
             $subscribers = sfGuardUserTable::getInstance()
                 ->createQuery('u')
-                ->select('u.email_address AS EMAIL, u.first_name AS FNAME, u.last_name AS LNAME')
-                ->execute(array(), Doctrine::HYDRATE_ARRAY);
+                ->select('u.email_address EMAIL, u.first_name FNAME, u.last_name LNAME')
+                ->where('u.is_active = 1')
+                ->fetchArray();
 
             if (count($subscribers)) {
 
